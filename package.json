@@ -1,0 +1,32 @@
+{
+  "name": "udp-chat",
+  "version": "0.0.1",
+  "description": "Using UDP to make a local chat server",
+  "main": "./src/server.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "server": "node ./src/server.js",
+    "client": "node ./src/client.js",
+
+    "pretest": "jshint src/",
+    "test": "echo \"No actual tests, just linting.\""
+  },
+  "config": {
+    "server_port": 33333,
+    "client_port": 22222
+  },
+  "keywords": [
+    "UDP",
+    "chat"
+  ],
+  "author": "Will Paul",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "jshint": "^2.8.0"
+  },
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "netmask": "^1.0.5"
+  }
+}
+
