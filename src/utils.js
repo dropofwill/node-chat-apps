@@ -5,14 +5,23 @@ var _ = require('lodash'),
 
 var utils = {};
 
+utils.is_param_defined = function(param) {
+  if (param === undefined || param === null) {
+    return false;
+  }
+  else {
+    return true;
+  }
+};
+
 // Overrides user input with a given default parameter if the input is either
 // null or undefined.
 utils.default_param = function(input_param, default_param) {
-  if (input_param === undefined || input_param === null) {
-    return default_param;
+  if (utils.is_param_defined(input_param)) {
+    return input_param;
   }
   else {
-    return input_param;
+    return default_param;
   }
 };
 

@@ -22,15 +22,27 @@ udp.send_data_factory = function(socket, port, address) {
   };
 };
 
-udp.valid_port = function(remote_port, valid_port) {
-  if (remote_port === valid_port)
+udp.valid_port = function(remote_info, valid_port) {
+  if (remote_info.port === valid_port)
     return true;
   else
     return false;
 };
 
-udp.start_server = function() {
+// Takes a socket and a hash of callback functions with the events as keys
+// e.g. {'message': message_callback}
+udp.on_data = function(socket, callbacks_obj) {
+  for (event_key in callbacks_obj) {
+    socket.on(event_key, callbacks_obj[event_key]);
+  }
+};
 
+udp.start_server = function(socket, port, callback) {
+  socket.bind(port, function(){
+    socket.setBroadcast(true);
+
+    if (utils.is_param_defined(callback)) callback();
+  });
 };
 
 module.exports = udp;

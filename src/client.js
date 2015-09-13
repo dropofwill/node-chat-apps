@@ -6,7 +6,6 @@ var constants = require('./constants'),
     udp = require('./udp'),
     utils = require('./utils');
 
-
 var BROADCAST_ADDRESS = broadcast_address(),
     CLIENT_PORT = constants.CLIENT_PORT,
     SERVER_PORT = constants.SERVER_PORT;
@@ -14,27 +13,27 @@ var BROADCAST_ADDRESS = broadcast_address(),
 var stdin = process.stdin;
 var stdout = process.stdout;
 
-var sock = dgram.createSocket({reuseAddr: true, type: 'udp4'});
-var server_sock = dgram.createSocket({reuseAddr: true, type: 'udp4'});
+var client_socket = dgram.createSocket({reuseAddr: true, type: 'udp4'});
+var server_socket = dgram.createSocket({reuseAddr: true, type: 'udp4'});
 
 function sendMessage(data) {
-	sock.send(data, 0, data.length, CLIENT_PORT, BROADCAST_ADDRESS, function(err) {
+	client_socket.send(data, 0, data.length, CLIENT_PORT, BROADCAST_ADDRESS, function(err) {
 		if(err) {
 			throw err;
 		}
 	});
 }
 
-server_sock.on('message', function(data, rinfo){
+server_socket.on('message', function(data, rinfo){
   //write out the data received converting the data buffer to a string
 	console.log('received ' + data.toString());
 });
 
-server_sock.bind(SERVER_PORT, '', function() {});
+server_socket.bind(SERVER_PORT, '', function() {});
 
-sock.bind(CLIENT_PORT, '', function(){
+client_socket.bind(CLIENT_PORT, '', function(){
 
-  sock.setBroadcast(true);
+  client_socket.setBroadcast(true);
 
   console.log('please enter a username...\n');
 
