@@ -1,60 +1,72 @@
-//import the user datagram module (udp) - dgram. This has all of the udp methods
-var dgram = require('dgram');
-
 var constants = require('./constants'),
-    broadcast_address = require('./broadcast-address'),
-    udp = require('./udp'),
-    utils = require('./utils');
+    protocol = require('./udp'),
+    utils = require('./utils'),
 
-var BROADCAST_ADDRESS = broadcast_address(),
+    rl = require('readline');
+
+var BROADCAST_ADDRESS = protocol.query_broadcast_address(),
     CLIENT_PORT = constants.CLIENT_PORT,
     SERVER_PORT = constants.SERVER_PORT;
 
-var stdin = process.stdin;
-var stdout = process.stdout;
+var server_socket = protocol.create_socket(),
+    client_socket = protocol.create_socket(),
 
-var client_socket = dgram.createSocket({reuseAddr: true, type: 'udp4'});
-var server_socket = dgram.createSocket({reuseAddr: true, type: 'udp4'});
+    // Create a send data function for this combination of socket,
+    // port, and address
+    send_data = protocol.send_data_factory(client_socket, CLIENT_PORT, BROADCAST_ADDRESS),
 
-function sendMessage(data) {
-	client_socket.send(data, 0, data.length, CLIENT_PORT, BROADCAST_ADDRESS, function(err) {
-		if(err) {
-			throw err;
-		}
-	});
-}
+    client_rl = utils.create_rl(),
 
-server_socket.on('message', function(data, rinfo){
-  //write out the data received converting the data buffer to a string
-	console.log('received ' + data.toString());
-});
+    // The client starts up in a state in which the nick is needed,
+    // we can then derive the state of the application by this variable
+    nick = null;
 
-server_socket.bind(SERVER_PORT, '', function() {});
+var server_message_cb = function(data, remote_info) {
+  var msg = JSON.parse(data);
 
-client_socket.bind(CLIENT_PORT, '', function(){
+  // client_rl.pause();
+  console.log(msg.nick + ': ' + msg.input + '\n');
+	// console.log(': ' + data.toString());
+};
 
-  client_socket.setBroadcast(true);
+var register_nick = function() {
 
-  console.log('please enter a username...\n');
+  client_rl.question("Enter your desired nick: ", function(nick_input) {
+    client_rl.pause();
 
-  stdin.resume();
+    nick = nick_input;
 
-  var inputCounter = 0; //counter to know if we started taking in input
-  var username = "";
+    send_data(JSON.stringify({'nick': nick, 'command': 'register', 'input': nick}));
 
-  stdin.on('data', function(data){
-    //check if input counter is still zero, if so we'll take in a username
-    //THIS IS POOR PRACTICE, but will work for the assignment
-    //In reality, you'd want something more robust if you were taking in command line input
-    if(inputCounter === 0 ) {
-        inputCounter++; //increase input counter so it takes messages from now on instead of a username
-        username = data; //set username to data from command line
-        console.log("username was " + username.toString()); //checking what the input was
-        console.log('please enter a message...\n'); //prompt the user to enter a message
-        return; //cancel out of function so it does not try to send anything
-    }
-    console.log('please enter a message...\n');
-    //call to send a message to the server passing in whatever was typed on the command line
-    sendMessage(data);
+    take_general_input();
   });
-});
+};
+
+var take_general_input = function() {
+
+  client_rl.question("> ", function(input) {
+    client_rl.pause();
+
+    send_data(JSON.stringify({'nick': nick, 'command': 'message', 'input': input}));
+
+    take_general_input();
+  });
+};
+
+
+var client_message_cb = function(data, remote_info) {
+  if (nick === null) {
+    register_nick();
+  }
+  else {
+    take_general_input();
+  }
+};
+
+var start = function() {
+  protocol.on_data(server_socket, {'message': server_message_cb});
+
+  protocol.bind_socket(server_socket, SERVER_PORT);
+
+  protocol.bind_socket(client_socket, CLIENT_PORT, true, client_message_cb);
+};

@@ -1,9 +1,15 @@
 var _ = require('lodash'),
     constants = require('./constants'),
 
-    readline = require('readline');
+    rl = require('readline');
 
 var utils = {};
+
+utils.create_rl = function(params) {
+  params = utils.default_param(params, {input: process.stdin, output: process.stdout});
+
+  return rl.createInterface(params);
+};
 
 utils.is_param_defined = function(param) {
   if (param === undefined || param === null) {

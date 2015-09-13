@@ -24,6 +24,6 @@ var message_cb = function(data, remote_info) {
 
 protocol.on_data(socket, {'message': message_cb});
 
-protocol.start_server(socket, CLIENT_PORT)
+protocol.bind_socket(socket, CLIENT_PORT, true)
 
 utils.setup_graceful_shutdown(send_data);
