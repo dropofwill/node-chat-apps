@@ -1,7 +1,6 @@
 var dgram = require('dgram'),
     rl = require('readline'),
 
-    utils = require('./broadcast-address'),
     utils = require('./utils');
 
 var udp = {};

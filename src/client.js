@@ -2,9 +2,10 @@ var constants = require('./constants'),
     protocol = require('./udp'),
     utils = require('./utils'),
 
+    broadcast_address = require('./broadcast-address'),
     rl = require('readline');
 
-var BROADCAST_ADDRESS = protocol.query_broadcast_address(),
+var BROADCAST_ADDRESS = utils.get_env_var('BROADCAST_ADDRESS') || broadcast_address(),
     CLIENT_PORT = constants.CLIENT_PORT,
     SERVER_PORT = constants.SERVER_PORT;
 
@@ -21,17 +22,37 @@ var server_socket = protocol.create_socket(),
     // we can then derive the state of the application by this variable
     nick = null;
 
+var start = function() {
+  protocol.on_data(server_socket, {'message': server_message_cb});
+
+  protocol.bind_socket(server_socket, SERVER_PORT);
+
+  protocol.bind_socket(client_socket, CLIENT_PORT, true, client_message_cb);
+};
+
 var server_message_cb = function(data, remote_info) {
   var msg = JSON.parse(data);
 
-  // client_rl.pause();
-  console.log(msg.nick + ': ' + msg.input + '\n');
-	// console.log(': ' + data.toString());
+  client_rl.pause();
+
+  console.log(msg);
+  console.log();
+
+  client_rl.resume();
+};
+
+var client_message_cb = function(data, remote_info) {
+  if (nick === null) {
+    register_nick();
+  }
+  else {
+    take_general_input();
+  }
 };
 
 var register_nick = function() {
 
-  client_rl.question("Enter your desired nick: ", function(nick_input) {
+  client_rl.question("Enter your nick: ", function(nick_input) {
     client_rl.pause();
 
     nick = nick_input;
@@ -44,29 +65,42 @@ var register_nick = function() {
 
 var take_general_input = function() {
 
-  client_rl.question("> ", function(input) {
+  client_rl.question("", function(input) {
+    var input_type = parse_input_type(input);
+
     client_rl.pause();
 
-    send_data(JSON.stringify({'nick': nick, 'command': 'message', 'input': input}));
+    send_data(JSON.stringify({'nick': nick, 'command': input_type, 'input': input}));
 
     take_general_input();
   });
 };
 
+var parse_input_type = function(input) {
+  var ME_REGEX = /^\/me/gi;
 
-var client_message_cb = function(data, remote_info) {
-  if (nick === null) {
-    register_nick();
+  if (ME_REGEX.test(input)) {
+    return 'me';
   }
   else {
-    take_general_input();
+    return 'message';
   }
 };
 
-var start = function() {
-  protocol.on_data(server_socket, {'message': server_message_cb});
-
-  protocol.bind_socket(server_socket, SERVER_PORT);
-
-  protocol.bind_socket(client_socket, CLIENT_PORT, true, client_message_cb);
+var format_data = (msg) {
+  switch (msg.command) {
+    case 'me':
+      return format_me(msg);
+    default:
+      return format_message(msg);
+  }
 };
+
+var format_message = function(msg) {
+  return msg.nick + ': ' + msg.input + '\n';
+};
+
+var format_me = function(msg) {
+  return msg.nick + ': ' + msg.input + '\n';
+};
+start();

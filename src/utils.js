@@ -5,6 +5,25 @@ var _ = require('lodash'),
 
 var utils = {};
 
+// Shortcut for accessing environment, optional callback with given var
+// returns undefined if nothing is found and callback is not fired
+utils.get_env_var = function(env_var, callback) {
+  var env_var = process.env[env_var];
+  console.log(env_var);
+
+  if (utils.is_param_defined(process.env[env_var])) {
+    if (utils.is_param_defined(callback)) {
+      return callback(env_var);
+    }
+    else {
+      return env_var;
+    }
+  }
+  else {
+    return undefined;
+  }
+};
+
 utils.create_rl = function(params) {
   params = utils.default_param(params, {input: process.stdin, output: process.stdout});
 
