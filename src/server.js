@@ -13,6 +13,14 @@ var BROADCAST_ADDRESS = broadcast_address(),
 //
 // Start listening -> start_server() -> null
 
+var start = function() {
+  protocol.on_data(socket, {'message': message_cb});
+
+  protocol.bind_socket(socket, CLIENT_PORT, true)
+
+  utils.setup_graceful_shutdown(send_data);
+};
+
 var socket = protocol.create_socket(),
     send_data = protocol.send_data_factory(socket, SERVER_PORT, BROADCAST_ADDRESS);
 
@@ -22,8 +30,4 @@ var message_cb = function(data, remote_info) {
   }
 };
 
-protocol.on_data(socket, {'message': message_cb});
-
-protocol.bind_socket(socket, CLIENT_PORT, true)
-
-utils.setup_graceful_shutdown(send_data);
+start();

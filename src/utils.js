@@ -7,9 +7,9 @@ var utils = {};
 
 // Shortcut for accessing environment, optional callback with given var
 // returns undefined if nothing is found and callback is not fired
-utils.get_env_var = function(env_var, callback) {
-  var env_var = process.env[env_var];
-  console.log(env_var);
+utils.get_env_var = function(env_var_key, callback) {
+  var env_var = process.env[env_var_key];
+  console.log(env_var_key, env_var);
 
   if (utils.is_param_defined(process.env[env_var])) {
     if (utils.is_param_defined(callback)) {
@@ -56,6 +56,10 @@ utils.prep_input = function(buf) {
 
 utils.chomp = function(str) {
   return str.replace(/\s+$/g, '');
+};
+
+utils.remove_command_str = function(str) {
+  return str.replace(/^\/[A-z]+\s+/, '');
 };
 
 utils.json_try_parse = function(str) {

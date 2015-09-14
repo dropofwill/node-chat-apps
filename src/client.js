@@ -5,7 +5,7 @@ var constants = require('./constants'),
     broadcast_address = require('./broadcast-address'),
     rl = require('readline');
 
-var BROADCAST_ADDRESS = utils.get_env_var('BROADCAST_ADDRESS') || broadcast_address(),
+var BROADCAST_ADDRESS = utils.get_env_var('ADDRESS') || broadcast_address(),
     CLIENT_PORT = constants.CLIENT_PORT,
     SERVER_PORT = constants.SERVER_PORT;
 
@@ -35,8 +35,7 @@ var server_message_cb = function(data, remote_info) {
 
   client_rl.pause();
 
-  console.log(msg);
-  console.log();
+  console.log(format_data(msg));
 
   client_rl.resume();
 };
@@ -52,7 +51,7 @@ var client_message_cb = function(data, remote_info) {
 
 var register_nick = function() {
 
-  client_rl.question("Enter your nick: ", function(nick_input) {
+  client_rl.question("Enter your nick:\n", function(nick_input) {
     client_rl.pause();
 
     nick = nick_input;
@@ -77,30 +76,43 @@ var take_general_input = function() {
 };
 
 var parse_input_type = function(input) {
-  var ME_REGEX = /^\/me/gi;
+  var ME_REGEX = /^\/me/gi,
+      QUIT_REGEX = /^\/quit/gi;
 
   if (ME_REGEX.test(input)) {
     return 'me';
+  }
+  else if (QUIT_REGEX.test(input)) {
+    return 'quit';
   }
   else {
     return 'message';
   }
 };
 
-var format_data = (msg) {
+var format_data = function(msg) {
   switch (msg.command) {
+    case 'register':
+      return format_nick(msg);
     case 'me':
       return format_me(msg);
+    case 'quit':
+      return format_quit(msg);
     default:
       return format_message(msg);
   }
 };
 
 var format_message = function(msg) {
-  return msg.nick + ': ' + msg.input + '\n';
+  return msg.nick + '> ' + msg.input + '\n';
+};
+
+var format_nick = function(msg) {
+  return 'User ' + msg.nick + ' just regesitered\n';
 };
 
 var format_me = function(msg) {
-  return msg.nick + ': ' + msg.input + '\n';
+  return msg.nick + ' ' + utils.remove_command_str(msg.input) + '\n';
 };
+
 start();
