@@ -35,7 +35,7 @@ var server_message_cb = function(data, remote_info) {
 
   client_rl.pause();
 
-  console.log(format_data(msg));
+  console.log(msg.output);
 
   client_rl.resume();
 };
@@ -55,8 +55,7 @@ var register_nick = function() {
     client_rl.pause();
 
     nick = nick_input;
-
-    send_data(JSON.stringify({'nick': nick, 'command': 'register', 'input': nick}));
+    send_data(generate_msg_json(nick_input, 'register'));
 
     take_general_input();
   });
@@ -69,21 +68,31 @@ var take_general_input = function() {
 
     client_rl.pause();
 
-    send_data(JSON.stringify({'nick': nick, 'command': input_type, 'input': input}));
+    send_data(generate_msg_json(input, input_type));
 
     take_general_input();
   });
 };
 
+var generate_msg_json = function(input, input_type) {
+  var msg = {'nick': nick, 'command': input_type, 'input': input}
+  msg.output = format_data(msg);
+  return JSON.stringify(msg);
+};
+
 var parse_input_type = function(input) {
   var ME_REGEX = /^\/me/gi,
-      QUIT_REGEX = /^\/quit/gi;
+      SWITCH_REGEX = /^\/switch/gi;
+      ROLLS_REGEX = /^\/rolls/gi;
 
   if (ME_REGEX.test(input)) {
     return 'me';
   }
-  else if (QUIT_REGEX.test(input)) {
-    return 'quit';
+  else if (ROLLS_REGEX.test(input)) {
+    return 'rolls';
+  }
+  else if (SWITCH_REGEX.test(input)) {
+    return 'switch';
   }
   else {
     return 'message';
@@ -96,23 +105,40 @@ var format_data = function(msg) {
       return format_nick(msg);
     case 'me':
       return format_me(msg);
-    case 'quit':
-      return format_quit(msg);
+    case 'rolls':
+      return format_rolls(msg);
+    case 'switch':
+      return format_switch(msg);
     default:
       return format_message(msg);
   }
 };
 
 var format_message = function(msg) {
-  return msg.nick + '> ' + msg.input + '\n';
+  return msg.nick + '> ' + msg.input;
 };
 
 var format_nick = function(msg) {
-  return 'User ' + msg.nick + ' just regesitered\n';
+  return 'User ' + msg.nick + ' just regesitered';
 };
 
 var format_me = function(msg) {
-  return msg.nick + ' ' + utils.remove_command_str(msg.input) + '\n';
+  return msg.nick + ' ' + utils.remove_command_str(msg.input);
+};
+
+var format_rolls = function(msg) {
+  var sides = utils.chomp(utils.remove_command_str(msg.input)),
+      rolled;
+
+  sides = utils.int_try_parse(sides) || 6;
+  rolled = utils.random_int(sides);
+
+  return msg.nick + ' rolled a D' + sides + ' and got a ' + rolled;
+};
+
+var format_switch = function(msg) {
+  nick = utils.chomp(utils.remove_command_str(msg.input));
+  return msg.nick + ' is now known as ' + nick;
 };
 
 start();

@@ -62,6 +62,17 @@ utils.remove_command_str = function(str) {
   return str.replace(/^\/[A-z]+\s+/, '');
 };
 
+utils.int_try_parse = function(str) {
+  var parse = parseInt(str);
+
+  if (typeof parse === 'number' && parse !== NaN) {
+    return parse;
+  }
+  else {
+    return false;
+  }
+};
+
 utils.json_try_parse = function(str) {
   try {
     return JSON.parse(str);
@@ -70,6 +81,10 @@ utils.json_try_parse = function(str) {
     return false;
   }
 };
+
+utils.random_int = function(max) {
+  return Math.ceil(Math.random() * max);
+}
 
 utils.format_user_input = function(data) {
   json_data = JSON.parse(data);
