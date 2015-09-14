@@ -5,34 +5,6 @@ var dgram = require('dgram'),
 
 var udp = {};
 
-udp.query_broadcast_address = function() {
-  return broadcast_address(0, should_use_loopback_query());
-};
-
-var should_use_loopback_query = function() {
-  var config_rl = utils.create_rl();
-
-  config_rl.question('Would you like to use your internal loopback interface (Y) or your local network (N)',
-      function(input) {
-
-    config_rl.pause();
-
-    if (input.toUpperCase().charAt(0) === 'Y') {
-      config_rl.close();
-      return true;
-    }
-    else if (input.toUpperCase().charAt(0) === 'N') {
-      config_rl.close();
-      return false;
-    }
-    else {
-      console.log('Sorry, please answer Y or N');
-      should_use_loopback_query();
-    }
-  });
-};
-
-
 udp.create_socket = function(params) {
   // Default params for IPv4 and reuseAddr
   params = utils.default_param(params, {reuseAddr: true, type: 'udp4'});
