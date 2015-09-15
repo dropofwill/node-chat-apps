@@ -11,7 +11,7 @@ utils.get_env_var = function(env_var_key, callback) {
   var env_var = process.env[env_var_key];
   console.log(env_var_key, env_var);
 
-  if (utils.is_param_defined(process.env[env_var])) {
+  if (utils.is_param_defined(process.env[env_var_key])) {
     if (utils.is_param_defined(callback)) {
       return callback(env_var);
     }
@@ -24,12 +24,14 @@ utils.get_env_var = function(env_var_key, callback) {
   }
 };
 
+// Shortcut for creating a readline interface
 utils.create_rl = function(params) {
   params = utils.default_param(params, {input: process.stdin, output: process.stdout});
 
   return rl.createInterface(params);
 };
 
+// Shortcut for making default arguments in JS
 utils.is_param_defined = function(param) {
   if (param === undefined || param === null) {
     return false;
@@ -50,18 +52,18 @@ utils.default_param = function(input_param, default_param) {
   }
 };
 
-utils.prep_input = function(buf) {
-  return utils.chomp(buf.toString());
-};
-
+// Get rid of whitespace at end of string
 utils.chomp = function(str) {
   return str.replace(/\s+$/g, '');
 };
 
+// Remove and /sfdskfjsd  'commands' from a given string
 utils.remove_command_str = function(str) {
   return str.replace(/^\/[A-z]+\s+/, '');
 };
 
+// Try to parse a string to an int, else return false
+// FUN FACT: typeof NaN === 'number'
 utils.int_try_parse = function(str) {
   var parse = parseInt(str);
 
@@ -73,6 +75,7 @@ utils.int_try_parse = function(str) {
   }
 };
 
+// Try to parse JSON, return false if we get an error
 utils.json_try_parse = function(str) {
   try {
     return JSON.parse(str);
@@ -82,31 +85,9 @@ utils.json_try_parse = function(str) {
   }
 };
 
+// Get a random int between 1 and max
 utils.random_int = function(max) {
   return Math.ceil(Math.random() * max);
 }
-
-utils.format_user_input = function(data) {
-  json_data = JSON.parse(data);
-  return json_data.user + ": " + json_data.input;
-};
-
-utils.delay_exit = function(time) {
-  return _.debounce(process.exit.bind(void 0, 0), time)();
-};
-
-utils.setup_graceful_shutdown = function(send_data_fn, server_msg, client_msg) {
-  server_msg = utils.default_param(server_msg, 'Shutting down');
-  client_msg = utils.default_param(client_msg, 'Uh-oh, server down.');
-
-  constants.EXIT_SIGNALS.forEach(function(element) {
-    process.on(element, function() {
-      process.stdout.write("\n" + server_msg + "\n");
-      send_data_fn(new Buffer(client_msg));
-
-      utils.delay_exit(1);
-    });
-  });
-};
 
 module.exports = utils;

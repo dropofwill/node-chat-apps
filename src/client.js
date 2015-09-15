@@ -5,7 +5,17 @@ var constants = require('./constants'),
     broadcast_address = require('./broadcast-address'),
     rl = require('readline');
 
-var BROADCAST_ADDRESS = utils.get_env_var('ADDRESS') || broadcast_address(),
+// Let's you either input a specific address to broadcast with env vars, e.g.:
+//   $ ADDRESS=127.255.255.255 npm run server
+// Or let's you say whether you would like to run internally on the loopback or
+// on the LAN. It uses netmask to calculate the appropriate address:
+//   $ LOOPBACK=false npm run server
+// Else it defaults to just working on your internal loopback since that
+// /should/ always work.
+var BROADCAST_ADDRESS = utils.get_env_var('ADDRESS') ||
+                        utils.get_env_var('LOOPBACK', parse_broadcast_address) ||
+                        broadcast_address(),
+
     CLIENT_PORT = constants.CLIENT_PORT,
     SERVER_PORT = constants.SERVER_PORT;
 
@@ -50,7 +60,6 @@ var client_message_cb = function(data, remote_info) {
 };
 
 var register_nick = function() {
-
   client_rl.question("Enter your nick:\n", function(nick_input) {
     client_rl.pause();
 
@@ -62,7 +71,6 @@ var register_nick = function() {
 };
 
 var take_general_input = function() {
-
   client_rl.question("", function(input) {
     var input_type = parse_input_type(input);
 
@@ -74,12 +82,14 @@ var take_general_input = function() {
   });
 };
 
+// Create a JSON object ready to be sent to the server
 var generate_msg_json = function(input, input_type) {
   var msg = {'nick': nick, 'command': input_type, 'input': input}
   msg.output = format_data(msg);
   return JSON.stringify(msg);
 };
 
+// Simple regex matching to figure out what command the user entered
 var parse_input_type = function(input) {
   var ME_REGEX = /^\/me/gi,
       SWITCH_REGEX = /^\/switch/gi;
@@ -99,6 +109,7 @@ var parse_input_type = function(input) {
   }
 };
 
+// Determine which output formatter to use based on input type 'command'
 var format_data = function(msg) {
   switch (msg.command) {
     case 'register':
@@ -113,6 +124,8 @@ var format_data = function(msg) {
       return format_message(msg);
   }
 };
+
+// Functions to parse input into output strings
 
 var format_message = function(msg) {
   return msg.nick + '> ' + msg.input;
@@ -139,6 +152,12 @@ var format_rolls = function(msg) {
 var format_switch = function(msg) {
   nick = utils.chomp(utils.remove_command_str(msg.input));
   return msg.nick + ' is now known as ' + nick;
+};
+
+var parse_broadcast_address = function(loopback) {
+  var is_internal = (loopback === 'true');
+
+  return broadcast_address(is_internal);
 };
 
 start();

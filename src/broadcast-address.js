@@ -27,15 +27,15 @@ nth_non_internal_net_iface = function(nth, is_internal) {
 };
 
 // Use Netmask to calculate the broadcast address using the ip and netmask
-broadcast_address = function(nth, is_internal) {
-  // Defaults to the first IPv4 interface
-  nth = utils.default_param(nth, 0);
+broadcast_address = function(is_internal) {
+  // console.log(is_internal);
 
   // Defaults to internal-only iface
   is_internal = utils.default_param(is_internal, true);
 
-  var iface = nth_non_internal_net_iface(nth, is_internal);
-  console.log(new Netmask(iface.address, iface.netmask).broadcast);
+
+  var iface = nth_non_internal_net_iface(0, is_internal);
+  console.log('Listening on: ' + new Netmask(iface.address, iface.netmask).broadcast);
 
   return new Netmask(iface.address, iface.netmask).broadcast;
 };

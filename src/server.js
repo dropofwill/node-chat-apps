@@ -11,8 +11,6 @@ var start = function() {
   protocol.on_data(socket, {'message': message_cb});
 
   protocol.bind_socket(socket, CLIENT_PORT, true)
-
-  utils.setup_graceful_shutdown(send_data);
 };
 
 var socket = protocol.create_socket(),
