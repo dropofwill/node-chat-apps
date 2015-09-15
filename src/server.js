@@ -1,16 +1,26 @@
 var constants = require('./constants'),
     protocol = require('./udp'),
-    broadcast_address = require('./broadcast-address'),
+    broadcast_address = require('./broadcast-address').broadcast_address,
     utils = require('./utils');
 
-var BROADCAST_ADDRESS = broadcast_address(),
+// Let's you either input a specific address to broadcast with env vars, e.g.:
+//   $ ADDRESS=127.255.255.255 npm run server
+// Or let's you say whether you would like to run internally on the loopback or
+// on the LAN. It uses netmask to calculate the appropriate address:
+//   $ LOOPBACK=false npm run server
+// Else it defaults to just working on your internal loopback since that
+// /should/ always work.
+var BROADCAST_ADDRESS = utils.get_env_var('ADDRESS') ||
+                        utils.get_env_var('LOOPBACK', parse_broadcast_address) ||
+                        broadcast_address(),
+
     CLIENT_PORT = constants.CLIENT_PORT,
     SERVER_PORT = constants.SERVER_PORT;
 
 var start = function() {
   protocol.on_data(socket, {'message': message_cb});
 
-  protocol.bind_socket(socket, CLIENT_PORT, true)
+  protocol.bind_socket(socket, CLIENT_PORT, true);
 };
 
 var socket = protocol.create_socket(),

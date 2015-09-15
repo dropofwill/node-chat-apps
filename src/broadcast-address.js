@@ -4,6 +4,8 @@ var Netmask = require('netmask').Netmask,
     os = require('os'),
     _ = require('lodash');
 
+var ba = {};
+
 // Just adding a chainable nth function to lodash
 _.mixin({
   nth: function(array, index) {
@@ -11,7 +13,7 @@ _.mixin({
   }
 });
 
-nth_non_internal_net_iface = function(nth, is_internal) {
+var nth_non_internal_net_iface = function(nth, is_internal) {
   // Defaults to the first IPv4 interface
   nth = utils.default_param(nth, 0);
 
@@ -27,12 +29,9 @@ nth_non_internal_net_iface = function(nth, is_internal) {
 };
 
 // Use Netmask to calculate the broadcast address using the ip and netmask
-broadcast_address = function(is_internal) {
-  // console.log(is_internal);
-
+ba.broadcast_address = function(is_internal) {
   // Defaults to internal-only iface
   is_internal = utils.default_param(is_internal, true);
-
 
   var iface = nth_non_internal_net_iface(0, is_internal);
   console.log('Listening on: ' + new Netmask(iface.address, iface.netmask).broadcast);
@@ -40,4 +39,10 @@ broadcast_address = function(is_internal) {
   return new Netmask(iface.address, iface.netmask).broadcast;
 };
 
-module.exports = broadcast_address;
+ba.parse_broadcast_address = function(loopback) {
+  var is_internal = (loopback === 'true');
+
+  return ba.broadcast_address(is_internal);
+};
+
+module.exports = ba;

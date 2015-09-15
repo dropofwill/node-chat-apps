@@ -35,7 +35,7 @@ udp.valid_port = function(remote_info, valid_port) {
 // Takes a socket and a hash of callback functions with the events as keys
 // e.g. {'message': message_callback}
 udp.on_data = function(socket, callbacks_obj) {
-  for (event_key in callbacks_obj) {
+  for (var event_key in callbacks_obj) {
     socket.on(event_key, callbacks_obj[event_key]);
   }
 };

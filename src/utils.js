@@ -67,7 +67,7 @@ utils.remove_command_str = function(str) {
 utils.int_try_parse = function(str) {
   var parse = parseInt(str);
 
-  if (typeof parse === 'number' && parse !== NaN) {
+  if (typeof parse === 'number' && !isNaN(parse)) {
     return parse;
   }
   else {
@@ -88,6 +88,6 @@ utils.json_try_parse = function(str) {
 // Get a random int between 1 and max
 utils.random_int = function(max) {
   return Math.ceil(Math.random() * max);
-}
+};
 
 module.exports = utils;

@@ -2,7 +2,8 @@ var constants = require('./constants'),
     protocol = require('./udp'),
     utils = require('./utils'),
 
-    broadcast_address = require('./broadcast-address'),
+    broadcast_address = require('./broadcast-address').broadcast_address,
+    parse_broadcast_address = require('./broadcast-address').parse_broadcast_address,
     rl = require('readline');
 
 // Let's you either input a specific address to broadcast with env vars, e.g.:
@@ -44,9 +45,7 @@ var server_message_cb = function(data, remote_info) {
   var msg = JSON.parse(data);
 
   client_rl.pause();
-
   console.log(msg.output);
-
   client_rl.resume();
 };
 
@@ -84,7 +83,7 @@ var take_general_input = function() {
 
 // Create a JSON object ready to be sent to the server
 var generate_msg_json = function(input, input_type) {
-  var msg = {'nick': nick, 'command': input_type, 'input': input}
+  var msg = {'nick': nick, 'command': input_type, 'input': input};
   msg.output = format_data(msg);
   return JSON.stringify(msg);
 };
@@ -151,13 +150,8 @@ var format_rolls = function(msg) {
 
 var format_switch = function(msg) {
   nick = utils.chomp(utils.remove_command_str(msg.input));
+
   return msg.nick + ' is now known as ' + nick;
-};
-
-var parse_broadcast_address = function(loopback) {
-  var is_internal = (loopback === 'true');
-
-  return broadcast_address(is_internal);
 };
 
 start();
