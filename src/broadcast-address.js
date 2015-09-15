@@ -34,7 +34,7 @@ ba.broadcast_address = function(is_internal) {
   is_internal = utils.default_param(is_internal, true);
 
   var iface = nth_non_internal_net_iface(0, is_internal);
-  console.log('Listening on: ' + new Netmask(iface.address, iface.netmask).broadcast);
+  console.log('Listening on: ' + new Netmask(iface.address, iface.netmask).broadcast + '\n');
 
   return new Netmask(iface.address, iface.netmask).broadcast;
 };

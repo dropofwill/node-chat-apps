@@ -91,7 +91,7 @@ var generate_msg_json = function(input, input_type) {
 // Simple regex matching to figure out what command the user entered
 var parse_input_type = function(input) {
   var ME_REGEX = /^\/me/gi,
-      SWITCH_REGEX = /^\/switch/gi;
+      SWITCH_REGEX = /^\/switch/gi,
       ROLLS_REGEX = /^\/rolls/gi;
 
   if (ME_REGEX.test(input)) {
