@@ -1,7 +1,7 @@
 {
-  "name": "udp-chat",
+  "name": "tcp-chat",
   "version": "0.0.1",
-  "description": "Using UDP to make a local chat server",
+  "description": "Using tcp to make a local chat server",
   "main": "./src/server.js",
   "scripts": {
     "start": "node ./src/server.js",
@@ -13,7 +13,8 @@
   },
   "config": {
     "server_port": 33333,
-    "client_port": 22222
+    "client_port": 22222,
+    "host": "127.0.0.1"
   },
   "keywords": [
     "UDP",

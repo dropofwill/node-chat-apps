@@ -1,5 +1,5 @@
 var constants = require('./constants'),
-    protocol = require('./udp'),
+    protocol = require('./tcp'),
     broadcast_address = require('./broadcast-address').broadcast_address,
     utils = require('./utils');
 
@@ -15,10 +15,16 @@ var BROADCAST_ADDRESS = utils.get_env_var('ADDRESS') ||
                         broadcast_address(),
 
     CLIENT_PORT = constants.CLIENT_PORT,
-    SERVER_PORT = constants.SERVER_PORT;
+    SERVER_PORT = constants.SERVER_PORT,
+    
+    clients = [];
 
 var start = function() {
-  protocol.on_data(socket, {'message': message_cb});
+  protocol.on_data(socket,
+      { 'data':  data_cb,
+        'error': error_cb,
+        'end':   end_cb,
+        'close': close_cb });
 
   protocol.bind_socket(socket, CLIENT_PORT, true);
 };

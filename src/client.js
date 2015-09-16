@@ -20,8 +20,7 @@ var BROADCAST_ADDRESS = utils.get_env_var('ADDRESS') ||
     CLIENT_PORT = constants.CLIENT_PORT,
     SERVER_PORT = constants.SERVER_PORT;
 
-var server_socket = protocol.create_socket(),
-    client_socket = protocol.create_socket(),
+var client_socket = protocol.create_socket(),
 
     // Create a send data function for this combination of socket,
     // port, and address
@@ -34,11 +33,11 @@ var server_socket = protocol.create_socket(),
     nick = null;
 
 var start = function() {
-  protocol.on_data(server_socket, {'message': server_message_cb});
+  protocol.on_data(server_socket,
+      { 'data':  data_cb
+        'close': close_cb });
 
-  protocol.bind_socket(server_socket, SERVER_PORT);
-
-  protocol.bind_socket(client_socket, CLIENT_PORT, true, client_message_cb);
+  protocol.bind_socket(client_socket, CLIENT_PORT, CLIENT_HOST, client_message_cb);
 };
 
 var server_message_cb = function(data, remote_info) {
