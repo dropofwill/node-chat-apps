@@ -3,29 +3,29 @@ var net = require('net'),
 
     utils = require('./utils');
 
-var self = {};
+var mod = {};
 
-self.create_socket = function(params) {
+mod.create_socket = function(params) {
   return new net.Socket();
 };
 
 // Takes a socket and a hash of callback functions with the events as keys
 // e.g. {'message': message_callback}
-self.on_data = function(socket, callbacks_obj) {
+mod.on_data = function(socket, callbacks_obj) {
   for (var event_key in callbacks_obj) {
     socket.on(event_key, callbacks_obj[event_key]);
   }
 };
 
-self.connect_socket = function(socket, port, host, callback) {
+mod.connect_socket = function(socket, port, host, callback) {
   socket.connect(port, host, function(){
     if (utils.is_param_defined(callback)) callback();
   });
 };
 
 
-self.create_server = function(port, callback) {
+mod.create_server = function(port, callback) {
   net.createServer(callback).listen(port);
 };
 
-module.exports = self;
+module.exports = mod;

@@ -1,8 +1,8 @@
 var pkg = require('../package.json');
 
-var self = {};
+var mod = {};
 
-self.PORT = pkg.config.port;
-self.HOST = pkg.config.host;
+mod.PORT = pkg.config.port;
+mod.HOST = pkg.config.host;
 
-module.exports = self;
+module.exports = mod;

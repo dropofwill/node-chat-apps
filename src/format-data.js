@@ -1,45 +1,45 @@
 var utils = require('./utils');
 
-var self = {};
+var mod = {};
 
 // Create a JSON object ready to be sent to the server
-self.generate_msg_json = function(input, input_type) {
+mod.generate_msg_json = function(socket, input, input_type) {
   var msg = {'nick': socket.nick, 'command': input_type, 'input': input};
-  msg.output = self(msg);
+  msg.output = mod.format_data(socket, msg);
   return JSON.stringify(msg);
 };
 
 // Determine which output formatter to use based on input type 'command'
-self.format_data = function(msg) {
+mod.format_data = function(socket, msg) {
   switch (msg.command) {
     case 'register':
-      return format_nick(msg);
+      return mod.format_nick(msg);
     case 'me':
-      return format_me(msg);
+      return mod.format_me(msg);
     case 'rolls':
-      return format_rolls(msg);
+      return mod.format_rolls(msg);
     case 'switch':
-      return format_switch(msg);
+      return mod.format_switch(msg, socket);
     default:
-      return format_message(msg);
+      return mod.format_message(msg);
   }
 };
 
 // Functions to parse input into output strings
 
-self.format_message = function(msg) {
+mod.format_message = function(msg) {
   return msg.nick + '> ' + msg.input;
 };
 
-self.format_nick = function(msg) {
+mod.format_nick = function(msg) {
   return 'User ' + msg.nick + ' just regesitered';
 };
 
-self.format_me = function(msg) {
+mod.format_me = function(msg) {
   return msg.nick + ' ' + utils.remove_command_str(msg.input);
 };
 
-self.format_rolls = function(msg) {
+mod.format_rolls = function(msg) {
   var sides = utils.chomp(utils.remove_command_str(msg.input)),
       rolled;
 
@@ -49,10 +49,11 @@ self.format_rolls = function(msg) {
   return msg.nick + ' rolled a D' + sides + ' and got a ' + rolled;
 };
 
-self.format_switch = function(msg) {
+mod.format_switch = function(msg, socket) {
+  console.log(msg.input);
   socket.nick = utils.chomp(utils.remove_command_str(msg.input));
 
   return msg.nick + ' is now known as ' + socket.nick;
 };
 
-module.exports = self;
+module.exports = mod;

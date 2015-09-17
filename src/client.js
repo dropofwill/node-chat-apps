@@ -50,7 +50,7 @@ var register_nick = function() {
     client_rl.pause();
 
     socket.nick = nick_input;
-    socket.write(format.generate_msg_json(nick_input, 'register'));
+    socket.write(format.generate_msg_json(socket, nick_input, 'register'));
 
     take_general_input();
   });
@@ -62,7 +62,7 @@ var take_general_input = function() {
 
     client_rl.pause();
 
-    socket.write(format.generate_msg_json(input, input_type));
+    socket.write(format.generate_msg_json(socket, input, input_type));
 
     take_general_input();
   });
