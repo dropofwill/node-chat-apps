@@ -12,7 +12,7 @@
     "test": "echo \"No actual tests, just linting.\""
   },
   "config": {
-    "port": 33333,
+    "port": 23427,
     "host": "127.0.0.1"
   },
   "keywords": [
