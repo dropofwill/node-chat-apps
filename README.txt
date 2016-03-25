@@ -1,4 +1,4 @@
-UDP Chat Application
+TCP Chat Application
 ========
 
 # Running
